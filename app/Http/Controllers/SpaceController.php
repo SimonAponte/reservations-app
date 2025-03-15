@@ -15,6 +15,7 @@ class SpaceController extends Controller
             'name' => 'required|string|min:10|max:100',
             'price' => 'required|numeric|regex:/^\d{1,6}(\.\d{1,2})?$/',
             'schedule' => ['required','array', new ValidSchedule],
+            'capacity' => 'required|numeric|integer|min:1|max:255'
         ]);
 
         if($validator->fails()){
@@ -64,6 +65,7 @@ class SpaceController extends Controller
             'name' => 'sometimes|string|min:10|max:100',
             'price' => 'sometimes|numeric|regex:/^\d{1,6}(\.\d{1,2})?$/',
             'schedule' => ['sometimes', new ValidSchedule],
+            'capacity' => 'sometimes|numeric|integer|min:1|max:255'
         ]);
 
         if($validator->fails()){
@@ -80,6 +82,10 @@ class SpaceController extends Controller
 
         if($request->has('schedule')){
             $space->schedule = $request->schedule;
+        }
+
+        if($request->has('capacity')){
+            $space->capacity = $request->capacity;
         }
         $space->update();
         return response()->json(['message' => 'Espacio actualizado exitosamente'], 200);

@@ -47,6 +47,12 @@ class User extends Authenticatable implements JWTSubject
             'password' => 'hashed',
         ];
     }
+    public function spaces(){
+
+        return $this->belongsToMany(Space::class)->withPivot('reservation_date', 'start_hour', 'end_hour')->as('reservation');
+    
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

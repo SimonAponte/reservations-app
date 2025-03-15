@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsUserAuth;
@@ -23,6 +24,8 @@ Route::middleware([IsUserAuth::class])->group(function () {
 
     Route::get('/spaces', [SpaceController::class, 'getSpaces']);
     Route::get('/spaces/{id}', [SpaceController::class, 'getSpaceById']);
+    Route::post('/reservations', [ReservationController::class, 'addReservation']);
+    Route::delete('/reservations/{id}', [ReservationController::class, 'deleteReservationById']);
 
     Route::middleware([IsAdmin::class])->group(function () {
 

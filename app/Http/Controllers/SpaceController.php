@@ -29,16 +29,29 @@ class SpaceController extends Controller
         return response()->json(['message' => 'Espacio creado exitosamente'], 201);
     }
     
-    public function getSpaces(){
-
+    public function getSpaces()
+    {
+     
         $spaces = Space::all();
-        
-        if($spaces->isEmpty()){
+    
+        if ($spaces->isEmpty()) {
             return response()->json(['message' => 'No se encontraron espacios'], 404);
         }
-
+    
+   
+        $spaces->transform(function ($space) {
+            
+            $space->schedule = json_decode($space->schedule);
+            
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $space->schedule = null;
+            }
+    
+            return $space;
+        });
+    
         return response()->json($spaces, 200);
-
     }
 
     public function getSpaceById($id){
@@ -48,6 +61,8 @@ class SpaceController extends Controller
         if(!$space){
             return response()->json(['message' => 'Espacio no encontrado'], 404);
         }
+
+        $space->schedule = json_decode($space->schedule);
 
         return response()->json($space, 200);
 
@@ -64,7 +79,7 @@ class SpaceController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|min:10|max:100',
             'price' => 'sometimes|numeric|regex:/^\d{1,6}(\.\d{1,2})?$/',
-            'schedule' => ['sometimes', new ValidSchedule],
+            'schedule' => ['sometimes', 'array', new ValidSchedule],
             'capacity' => 'sometimes|numeric|integer|min:1|max:255'
         ]);
 
@@ -81,7 +96,7 @@ class SpaceController extends Controller
         }
 
         if($request->has('schedule')){
-            $space->schedule = $request->schedule;
+            $space->schedule = json_encode($request->schedule);
         }
 
         if($request->has('capacity')){

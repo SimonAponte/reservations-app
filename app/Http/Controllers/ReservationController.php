@@ -27,11 +27,11 @@ class ReservationController extends Controller
         }
 
         // Validar que la fecha de reserva no sea anterior a la fecha actual
-        $reservationDate = Carbon::parse($request->reservation_date);
+        $reservationDate = Carbon::parse($request->reservation_date.' '.$request->start_hour, 'UTC');
         $currentDate = Carbon::now();
-
+        
         if ($reservationDate->lt($currentDate)) {  // lt() significa "less than" (menor que)
-            return response()->json(['error' => 'La fecha de reserva no puede ser anterior a la fecha actual'], 400);
+            return response()->json(['error' => 'La fecha de reserva no puede ser anteriores a la fecha y hora actuales'], 400);
         }
 
         // Obtener el espacio
@@ -117,30 +117,36 @@ class ReservationController extends Controller
         $user = JWTAuth::user();
 
         // Obtener la reserva específica del usuario
-        $reservation = $user->spaces()
+        $userReservation = $user->spaces()
             ->wherePivot('id', $id)  // Buscar por el ID de la reserva en la tabla pivot
             ->first();
 
-        if (!$reservation) {
-            return response()->json(['error' => 'Reserva no encontrada'], 404);
+        if (!$userReservation) {
+            return response()->json(['error' => "reserva no encontrada"], 404);
         }
 
         // Crear un objeto Carbon con la fecha y hora de inicio de la reserva
-        $reservationDateTime = Carbon::parse($reservation->pivot->reservation_date . ' ' . $reservation->pivot->start_hour);
+        $reservationDateTime = Carbon::parse($userReservation->reservation->reservation_date . ' ' . $userReservation->reservation->start_hour, 'UTC');
 
         // Obtener la fecha y hora actual
         $currentDateTime = Carbon::now();
 
         // Calcular la diferencia en horas
         $hoursDifference = $currentDateTime->diffInHours($reservationDateTime, false);
+        
 
         // Verificar si la reserva comienza en menos de una hora
-        if ($hoursDifference < 1) {
-            return response()->json(['error' => 'No se puede cancelar la reserva porque falta menos de una hora para su inicio'], 400);
+        if ($hoursDifference < 1 && $hoursDifference > 0) {
+            return response()->json(['error' => 'No puedes cancelar esta reserva ya que falta una hora o menos para empezar'], 400);
         }
 
-        // Eliminar la reserva en la tabla pivot
-        $user->spaces()->detach($id);
+        if ($hoursDifference < 0) {
+            return response()->json(['error' => 'No puedes cancelar una reserva que ya ha pasado, es parte del historial'], 400);
+        }
+
+
+        // Eliminar la reserva en la tabla pivot usando el ID de la reserva
+        DB::table('space_user')->where('id', $id)->delete();
 
         // Retornar respuesta exitosa
         return response()->json(['message' => 'Reserva eliminada exitosamente'], 200);
@@ -151,16 +157,43 @@ class ReservationController extends Controller
     {
         // Obtener el usuario autenticado con JWT
         $user = JWTAuth::user();
-        
+
+        // Obtener las reservas del usuario con los campos necesarios
         $reservations = $user->spaces()
-        ->withPivot('id', 'reservation_date', 'start_hour', 'end_hour')
-        ->get();
+            ->select(            
+                'spaces.name',
+                'spaces.price',
+                'space_user.reservation_date',
+                'space_user.start_hour',
+                'space_user.end_hour'
+            )
+            ->get();
 
         if ($reservations->isEmpty()) {
             return response()->json(['message' => 'No se encontraron reservaciones'], 404);
         }
 
-        return response()->json($reservations, 200);
+        // Transformar la respuesta para incluir el costo estimado
+        $simplifiedReservations = $reservations->map(function ($reservation) {
+            // Calcular la duración de la reserva en horas
+            $start = Carbon::parse($reservation->start_hour);
+            $end = Carbon::parse($reservation->end_hour);
+            $hoursDifference = $start->floatDiffInHours($end); // Diferencia en horas con decimales
 
+            // Calcular el costo estimado
+            $costoEstimado = $hoursDifference * $reservation->price;
+
+            // Retornar la estructura simplificada
+            return [
+                'name' => $reservation->name,
+                'reservation_date' => $reservation->reservation_date,
+                'start_hour' => $reservation->start_hour,
+                'end_hour' => $reservation->end_hour,
+                'estimated_cost' => $costoEstimado,
+            ];
+        });
+
+        return response()->json($simplifiedReservations, 200);
     }
+
 }

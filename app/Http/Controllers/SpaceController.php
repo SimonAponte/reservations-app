@@ -9,6 +9,112 @@ use Illuminate\Support\Facades\Validator;
 
 class SpaceController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *     path="/api/spaces",
+     *     summary="Crear un nuevo espacio",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Spaces"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Datos necesarios para crear un nuevo espacio",
+     *         @OA\JsonContent(
+     *             required={"name", "price", "schedule", "capacity"},
+     *             @OA\Property(property="name", type="string", minLength=10, maxLength=100, example="Sala de Conferencias A"),
+     *             @OA\Property(property="price", type="number", format="float", example=50.75),
+     *             @OA\Property(
+     *                 property="schedule",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="monday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="tuesday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="wednesday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="thursday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="friday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="saturday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="sunday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="capacity", type="integer", example=20)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Espacio creado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Espacio creado exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="object", example={
+     *                 "name": {"El campo nombre es obligatorio."},
+     *                 "price": {"El campo precio debe ser un número válido."},
+     *                 "schedule": {"El campo horario no es válido."},
+     *                 "capacity": {"El campo capacidad debe ser un número entero."}
+     *             })
+     *         )
+     *     )
+     * )
+     */
+
     public function addSpace(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -28,7 +134,105 @@ class SpaceController extends Controller
         Space::create($data);
         return response()->json(['message' => 'Espacio creado exitosamente'], 201);
     }
-    
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/spaces",
+     *     summary="Obtener todos los espacios",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Spaces"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de espacios",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Sala de Conferencias A"),
+     *                 @OA\Property(property="price", type="number", format="float", example=50.75),
+     *                 @OA\Property(
+     *                     property="schedule",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="monday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="tuesday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="wednesday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="thursday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="friday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="saturday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     ),
+     *                     @OA\Property(
+     *                         property="sunday",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="start", type="string", example="09:00"),
+     *                             @OA\Property(property="end", type="string", example="18:00")
+     *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="capacity", type="integer", example=20)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No se encontraron espacios",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No se encontraron espacios")
+     *         )
+     *     )
+     * )
+     */
+
     public function getSpaces()
     {
      
@@ -54,6 +258,107 @@ class SpaceController extends Controller
         return response()->json($spaces, 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/spaces/{id}",
+     *     summary="Obtener un espacio por ID",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Spaces"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del espacio",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Detalles del espacio",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="name", type="string", example="Sala de Conferencias A"),
+     *             @OA\Property(property="price", type="number", format="float", example=50.75),
+     *             @OA\Property(
+     *                 property="schedule",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="monday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="tuesday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="wednesday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="thursday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="friday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="saturday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="sunday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="capacity", type="integer", example=20)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Espacio no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Espacio no encontrado")
+     *         )
+     *     )
+     * )
+     */
+
     public function getSpaceById($id){
 
         $space = Space::find($id);
@@ -67,6 +372,124 @@ class SpaceController extends Controller
         return response()->json($space, 200);
 
     }
+
+    /**
+     * @OA\Patch(
+     *     path="/api/spaces/{id}",
+     *     summary="Actualizar un espacio por ID",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Spaces"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del espacio",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Datos para actualizar el espacio",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", minLength=10, maxLength=100, example="Sala de Conferencias A"),
+     *             @OA\Property(property="price", type="number", format="float", example=50.75),
+     *             @OA\Property(
+     *                 property="schedule",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="monday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="tuesday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="wednesday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="thursday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="friday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="saturday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="sunday",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="start", type="string", example="09:00"),
+     *                         @OA\Property(property="end", type="string", example="18:00")
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="capacity", type="integer", example=20)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Espacio actualizado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Espacio actualizado exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Espacio no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Espacio no encontrado")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="object", example={
+     *                 "name": {"El campo nombre es obligatorio."},
+     *                 "price": {"El campo precio debe ser un número válido."},
+     *                 "schedule": {"El campo horario no es válido."},
+     *                 "capacity": {"El campo capacidad debe ser un número entero."}
+     *             })
+     *         )
+     *     )
+     * )
+     */
 
     public function updateSpaceById(Request $request, $id){
 
@@ -106,6 +529,36 @@ class SpaceController extends Controller
         return response()->json(['message' => 'Espacio actualizado exitosamente'], 200);
 
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/spaces/{id}",
+     *     summary="Eliminar un espacio por ID",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Spaces"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del espacio",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Espacio eliminado exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Espacio eliminado exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Espacio no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Espacio no encontrado")
+     *         )
+     *     )
+     * )
+     */
 
     public function deleteSpaceById($id){
             

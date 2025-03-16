@@ -9,8 +9,52 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+/**
+ * @OA\Info(
+ *     title="API de Reservas y Espacios",
+ *     version="1.0.0",
+ *     description="Documentación de la API para gestionar reservas y espacios.",
+ *  
+ * )
+ */
+
+ 
+
 class ReservationController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *     path="/api/reservations",
+     *     summary="Crear una nueva reserva",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Reservations"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"space_id", "reservation_date", "start_hour", "end_hour"},
+     *             @OA\Property(property="space_id", type="integer", example=1),
+     *             @OA\Property(property="reservation_date", type="string", format="date", example="2025-03-15"),
+     *             @OA\Property(property="start_hour", type="string", format="time", example="14:00"),
+     *             @OA\Property(property="end_hour", type="string", format="time", example="17:00")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Reserva creada exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Reserva creada exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="object", example={"field": {"El campo field es obligatorio."}})
+     *         )
+     *     )
+     * )
+     */
     public function addReservation(Request $request)
     {
         // Validación de los datos de entrada
@@ -110,6 +154,43 @@ class ReservationController extends Controller
         return response()->json(['message' => 'Reserva creada exitosamente'], 201);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/reservations/{id}",
+     *     summary="Eliminar una reserva",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Reservations"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la reserva",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Reserva eliminada exitosamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Reserva eliminada exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error en la solicitud",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No puedes cancelar esta reserva ya que falta una hora o menos para empezar")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Reserva no encontrada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Reserva no encontrada")
+     *         )
+     *     )
+     * )
+     */
+
     public function deleteReservationById($id)
     {
 
@@ -152,6 +233,37 @@ class ReservationController extends Controller
         return response()->json(['message' => 'Reserva eliminada exitosamente'], 200);
 
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/reservations",
+     *     summary="Obtener todas las reservas del usuario",
+     *     security={{"bearerAuth": {}}},
+     *     tags={"Reservations"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de reservas",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="name", type="string", example="Sala de Conferencias A"),
+     *                 @OA\Property(property="reservation_date", type="string", format="date", example="2025-03-15"),
+     *                 @OA\Property(property="start_hour", type="string", format="time", example="14:00"),
+     *                 @OA\Property(property="end_hour", type="string", format="time", example="17:00"),
+     *                 @OA\Property(property="estimated_cost", type="number", format="float", example=150.75)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No se encontraron reservas",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No se encontraron reservas")
+     *         )
+     *     )
+     * )
+     */
 
     public function getReservations()
     {

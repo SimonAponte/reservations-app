@@ -1,0 +1,1439 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Reservas y Espacios",
+        "description": "Documentación de la API para gestionar reservas y espacios.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registrar un nuevo usuario",
+                "operationId": "8a56853624e025573120a09a4c75d468",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "role",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "minLength": 10,
+                                        "example": "John Doe"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "admin",
+                                            "user"
+                                        ],
+                                        "example": "user"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 50,
+                                        "minLength": 10,
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 10,
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "minLength": 10,
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario creado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Usuario creado exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "object",
+                                            "example": {
+                                                "field": [
+                                                    "El campo field es obligatorio."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Iniciar sesión",
+                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 50,
+                                        "minLength": 10,
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 10,
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inicio de sesión exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales inválidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Credenciales inválidas"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "object",
+                                            "example": {
+                                                "field": [
+                                                    "El campo field es obligatorio."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error al generar el token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No se pudo generar el token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Obtener información del usuario autenticado",
+                "operationId": "a39fa66a3964c041ce760a10f06a4be5",
+                "responses": {
+                    "200": {
+                        "description": "Información del usuario",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "type": "object",
+                                            "example": {
+                                                "id": 1,
+                                                "name": "John Doe",
+                                                "email": "john.doe@example.com",
+                                                "role": "user"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Cerrar sesión",
+                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "responses": {
+                    "200": {
+                        "description": "Sesión cerrada exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sesión cerrada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autorizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No autorizado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/reservations": {
+            "get": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Obtener todas las reservas del usuario",
+                "operationId": "c18fe40736a295c69322918d3c915ad9",
+                "responses": {
+                    "200": {
+                        "description": "Lista de reservas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Sala de Conferencias A"
+                                            },
+                                            "reservation_date": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "2025-03-15"
+                                            },
+                                            "start_hour": {
+                                                "type": "string",
+                                                "format": "time",
+                                                "example": "14:00"
+                                            },
+                                            "end_hour": {
+                                                "type": "string",
+                                                "format": "time",
+                                                "example": "17:00"
+                                            },
+                                            "estimated_cost": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 150.75
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No se encontraron reservas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No se encontraron reservas"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Crear una nueva reserva",
+                "operationId": "da1a59b124ed2072df98076a3f368a0b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "space_id",
+                                    "reservation_date",
+                                    "start_hour",
+                                    "end_hour"
+                                ],
+                                "properties": {
+                                    "space_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "reservation_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-03-15"
+                                    },
+                                    "start_hour": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "example": "14:00"
+                                    },
+                                    "end_hour": {
+                                        "type": "string",
+                                        "format": "time",
+                                        "example": "17:00"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Reserva creada exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Reserva creada exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "object",
+                                            "example": {
+                                                "field": [
+                                                    "El campo field es obligatorio."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/reservations/{id}": {
+            "delete": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Eliminar una reserva",
+                "operationId": "0d2019c6cc0efa3fc6982cc6ee5029cf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la reserva",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reserva eliminada exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Reserva eliminada exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error en la solicitud",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No puedes cancelar esta reserva ya que falta una hora o menos para empezar"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Reserva no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Reserva no encontrada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/spaces": {
+            "get": {
+                "tags": [
+                    "Spaces"
+                ],
+                "summary": "Obtener todos los espacios",
+                "operationId": "66dff9208b58879b68b787bea6cc1e6e",
+                "responses": {
+                    "200": {
+                        "description": "Lista de espacios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Sala de Conferencias A"
+                                            },
+                                            "price": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 50.75
+                                            },
+                                            "schedule": {
+                                                "properties": {
+                                                    "monday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "tuesday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "wednesday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "thursday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "friday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "saturday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "sunday": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "start": {
+                                                                    "type": "string",
+                                                                    "example": "09:00"
+                                                                },
+                                                                "end": {
+                                                                    "type": "string",
+                                                                    "example": "18:00"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "capacity": {
+                                                "type": "integer",
+                                                "example": 20
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No se encontraron espacios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No se encontraron espacios"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Spaces"
+                ],
+                "summary": "Crear un nuevo espacio",
+                "operationId": "7d0aa245c2f0d2fc15556a044ac7ffed",
+                "requestBody": {
+                    "description": "Datos necesarios para crear un nuevo espacio",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "price",
+                                    "schedule",
+                                    "capacity"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "minLength": 10,
+                                        "example": "Sala de Conferencias A"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50.75
+                                    },
+                                    "schedule": {
+                                        "properties": {
+                                            "monday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "tuesday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "wednesday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "thursday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "friday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "saturday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "sunday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "example": 20
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Espacio creado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Espacio creado exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "object",
+                                            "example": {
+                                                "name": [
+                                                    "El campo nombre es obligatorio."
+                                                ],
+                                                "price": [
+                                                    "El campo precio debe ser un número válido."
+                                                ],
+                                                "schedule": [
+                                                    "El campo horario no es válido."
+                                                ],
+                                                "capacity": [
+                                                    "El campo capacidad debe ser un número entero."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/spaces/{id}": {
+            "get": {
+                "tags": [
+                    "Spaces"
+                ],
+                "summary": "Obtener un espacio por ID",
+                "operationId": "78541658036366e1d3fcb45d12416318",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del espacio",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalles del espacio",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Sala de Conferencias A"
+                                        },
+                                        "price": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 50.75
+                                        },
+                                        "schedule": {
+                                            "properties": {
+                                                "monday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "tuesday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "wednesday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "thursday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "friday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "saturday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "sunday": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "start": {
+                                                                "type": "string",
+                                                                "example": "09:00"
+                                                            },
+                                                            "end": {
+                                                                "type": "string",
+                                                                "example": "18:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "capacity": {
+                                            "type": "integer",
+                                            "example": 20
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Espacio no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Espacio no encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Spaces"
+                ],
+                "summary": "Eliminar un espacio por ID",
+                "operationId": "53119aabc6b8f688f2650442c3ae7d5b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del espacio",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Espacio eliminado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Espacio eliminado exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Espacio no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Espacio no encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Spaces"
+                ],
+                "summary": "Actualizar un espacio por ID",
+                "operationId": "e3eb25f90ffe9e1a6abaf3ebe53c232e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del espacio",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Datos para actualizar el espacio",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "minLength": 10,
+                                        "example": "Sala de Conferencias A"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50.75
+                                    },
+                                    "schedule": {
+                                        "properties": {
+                                            "monday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "tuesday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "wednesday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "thursday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "friday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "saturday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "sunday": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "start": {
+                                                            "type": "string",
+                                                            "example": "09:00"
+                                                        },
+                                                        "end": {
+                                                            "type": "string",
+                                                            "example": "18:00"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "example": 20
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Espacio actualizado exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Espacio actualizado exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Espacio no encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Espacio no encontrado"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "object",
+                                            "example": {
+                                                "name": [
+                                                    "El campo nombre es obligatorio."
+                                                ],
+                                                "price": [
+                                                    "El campo precio debe ser un número válido."
+                                                ],
+                                                "schedule": [
+                                                    "El campo horario no es válido."
+                                                ],
+                                                "capacity": [
+                                                    "El campo capacidad debe ser un número entero."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Reservations",
+            "description": "Reservations"
+        },
+        {
+            "name": "Spaces",
+            "description": "Spaces"
+        }
+    ]
+}
